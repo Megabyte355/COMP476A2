@@ -23,7 +23,7 @@ public class TileGraphGenerator : MonoBehaviour
     [SerializeField]
     TileNode tileNodePrefab;
 
-    void Start ()
+    void Awake ()
     {
         tileSize = new Vector3(levelSize.x / tileDensity, 0, levelSize.z / tileDensity);
         overlapSphereRadius = tileSize.magnitude / 2;
@@ -41,7 +41,7 @@ public class TileGraphGenerator : MonoBehaviour
             for(int row = 0; row < tileDensity; row++)
             {
                 float x = (row * tileSize.x) + (-levelSize.x / 2 + tileSize.x / 2);
-                float y = 0.0f;
+                float y = 0.75f;
                 float z = (-col * tileSize.z) + (levelSize.z / 2 - tileSize.z / 2);
 
                 Vector3 currentLocation = new Vector3(x, y, z);

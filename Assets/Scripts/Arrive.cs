@@ -29,6 +29,7 @@ public class Arrive : MonoBehaviour
 
     void KinematicArrive()
     {
+        if(target == null) { return; }
         Vector3 direction = target.position - transform.position;
 
         if(direction.magnitude <= npc.DistanceThreshold)
@@ -51,6 +52,7 @@ public class Arrive : MonoBehaviour
 
     void SteeringArrive()
     {
+        if(target == null) { return; }
         Vector3 direction = target.position - transform.position;
 
         if(direction.magnitude < npc.DistanceThreshold)

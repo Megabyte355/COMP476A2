@@ -36,10 +36,15 @@ public class Npc : MonoBehaviour
     public float ArcDistance;
     public float AngularSpeed;
     public float AngleThreshold;
-    
+
+    // Behavior
+    [SerializeField]
+    Arrive arrive;
+
     void Start()
     {
         implementationMode = GameObject.FindGameObjectWithTag("Settings").GetComponent<Mode>();
+        arrive = GetComponent<Arrive>();
     }
     
     public bool IsKinematicMode()
@@ -50,5 +55,10 @@ public class Npc : MonoBehaviour
     public bool IsSteeringMode()
     {
         return implementationMode.IsSteering();
+    }
+
+    public void SetTarget(Transform target)
+    {
+        arrive.target = target;
     }
 }
