@@ -58,6 +58,7 @@ public class Arrive : MonoBehaviour
         if(direction.magnitude < npc.DistanceThreshold)
         {
             transform.position = target.position;
+            velocity = Vector3.zero;
         }
         else if(velocity.magnitude < npc.VelocityThreshold)
         {
