@@ -49,7 +49,7 @@ public class TileGraphNavigator : MonoBehaviour
             if(Physics.Raycast (mouseClickRay, out hit))
             {
                 TileNode targetNode = hit.collider.GetComponent<TileNode>();
-                if(targetNode != null)
+                if(targetNode != null && targetNode != startNode && targetNode != endNode)
                 {
                     endNode = targetNode;
                     nodeIndex = 1;
@@ -87,17 +87,20 @@ public class TileGraphNavigator : MonoBehaviour
 //            node.TurnVisible ();
             node.ResetColor();
         }
-        foreach (TileNode node in openList)
-        {
-            node.renderer.material.color = Color.yellow;
-        }
-        foreach (TileNode node in closedList)
-        {
-            node.renderer.material.color = Color.yellow;
-        }
-        foreach (TileNode node in pathList)
-        {
-            node.renderer.material.color = Color.green;
+
+        if(pathList.Count > 1) {
+            foreach (TileNode node in openList)
+            {
+                node.renderer.material.color = Color.yellow;
+            }
+            foreach (TileNode node in closedList)
+            {
+                node.renderer.material.color = Color.yellow;
+            }
+            foreach (TileNode node in pathList)
+            {
+                node.renderer.material.color = Color.green;
+            }
         }
         if(startNode != null)
         {
@@ -148,19 +151,23 @@ public class TileGraphNavigator : MonoBehaviour
         openList.Add (startNode);
         visitNodeAStar(startNode);
 
-        // complete the path
-        while(openList[0] != endNode)
+        while(openList.Count > 0 && openList[0] != endNode)
         {
             visitNodeAStar (openList[0]);
         }
 
         pathList.Add (endNode);
-        while(pathList[pathList.Count - 1] != startNode)
+        while(pathList.Count > 0 && pathList[pathList.Count - 1] != startNode)
         {
-            pathList.Add (pathList[pathList.Count - 1].previous);
+            TileNode previous = pathList[pathList.Count - 1].previous;
+            if(previous == null)
+            {
+                pathList.Clear ();
+                return;
+            }
+            pathList.Add (previous);
         }
         pathList.Reverse ();
-
     }
 
     void visitNodeAStar(TileNode node)
