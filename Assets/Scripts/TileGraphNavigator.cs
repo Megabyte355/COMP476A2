@@ -4,7 +4,11 @@ using System.Collections.Generic;
 
 public class TileGraphNavigator : MonoBehaviour
 {
-    enum NavigationMode {}
+    enum PathAlgorithm {AStar, Dijkstra, Cluster}
+    enum GraphMethod {Grid, PointOfView}
+
+    PathAlgorithm selectedAlgorithm;
+    GraphMethod selectedGraph;
 
     public List<TileNode> pathList = new List<TileNode>();
     public List<TileNode> openList = new List<TileNode>();
@@ -23,6 +27,8 @@ public class TileGraphNavigator : MonoBehaviour
 
     void Start ()
     {
+        selectedAlgorithm = PathAlgorithm.AStar;
+        selectedGraph = GraphMethod.Grid;
         tileNodes = graphGenerator.tileNodeList;
         ComputeStartNode ();
         endNode = startNode.GetNeighbors()[0];
@@ -33,12 +39,21 @@ public class TileGraphNavigator : MonoBehaviour
 
     void Update ()
     {
-        if(Input.GetButtonDown ("Jump"))
+        if(Input.GetKeyDown (KeyCode.A))
         {
-            // Change algorithms
-
-//            startNode.ResetColor();
-//            Debug.Log("Reset color");
+            selectedAlgorithm++;
+            if((int)selectedAlgorithm > 2)
+            {
+                selectedAlgorithm = 0;
+            }
+        }
+        else if(Input.GetKeyDown (KeyCode.S))
+        {
+            selectedGraph++;
+            if((int)selectedGraph > 1)
+            {
+                selectedGraph = 0;
+            }
         }
         else if(Input.GetMouseButtonDown(0))
         {
@@ -119,6 +134,16 @@ public class TileGraphNavigator : MonoBehaviour
         }
     }
 
+    void OnGUI() 
+    {   
+        GUI.Box(new Rect(10, 10, 275, 80), "Selected options");
+        GUI.Box(new Rect(10, 30, 275, 30), "(press 'a' to change) Algorithm: " + selectedAlgorithm.ToString ());
+        GUI.Box(new Rect(10, 60, 275, 30), "(press 's' to change) Graph: " + selectedGraph.ToString ());
+        GUI.Box(new Rect(10, 100, 275, 80), "Legend");
+        GUI.Box(new Rect(10, 120, 275, 30), "Start node -> Blue, End node -> Red");
+        GUI.Box(new Rect(10, 150, 275, 30), "Visited node -> Yellow, Path node -> Green");   
+    }
+
     void ComputeStartNode()
     {
         TileNode potentialStart = tileNodes[0];
@@ -141,16 +166,24 @@ public class TileGraphNavigator : MonoBehaviour
         pathList.Clear ();
         openList.Clear ();
         closedList.Clear ();
-
-        // TODO
         ComputeStartNode ();
 
         // Switch case for algorithms
-        calculateAStar ();
-
-
+        switch(selectedAlgorithm)
+        {
+        case PathAlgorithm.AStar:
+            calculateAStar ();
+            break;
+        case PathAlgorithm.Cluster:
+            // TODO
+            break;
+        case PathAlgorithm.Dijkstra:
+            calculateDijkstra ();
+            break;
+        default:
+            break;
+        }
     }
-
 
     void calculateAStar()
     {
@@ -162,18 +195,20 @@ public class TileGraphNavigator : MonoBehaviour
             visitNodeAStar (openList[0]);
         }
 
-        pathList.Add (endNode);
-        while(pathList.Count > 0 && pathList[pathList.Count - 1] != startNode)
+        ComposePathList();
+    }
+
+    void calculateDijkstra()
+    {
+        openList.Add (startNode);
+        visitNodeDijkstra(startNode);
+        
+        while(openList.Count > 0 && openList[0] != endNode)
         {
-            TileNode previous = pathList[pathList.Count - 1].previous;
-            if(previous == null)
-            {
-                pathList.Clear ();
-                return;
-            }
-            pathList.Add (previous);
+            visitNodeDijkstra(openList[0]);
         }
-        pathList.Reverse ();
+        
+        ComposePathList();
     }
 
     void visitNodeAStar(TileNode node)
@@ -215,6 +250,63 @@ public class TileGraphNavigator : MonoBehaviour
             }
         }
         openList.Sort();
+    }
+
+    void visitNodeDijkstra(TileNode node)
+    {
+        closedList.Add (node);
+        openList.Remove (node);
+        
+        List<TileNode> neighbors = node.GetNeighbors();
+        
+        foreach(TileNode currentNeighbor in neighbors)
+        {
+            if(!Physics.Linecast (node.transform.position, currentNeighbor.transform.position, 1 << graphGenerator.layoutLayer))
+            {
+                // Neighbor stats
+                float distance = (currentNeighbor.transform.position - node.transform.position).magnitude;
+                float costSoFar = node.costSoFar + distance;
+                float heuristicValue = 0.0f;
+                float totalEstimatedValue = costSoFar + heuristicValue;
+                
+                bool inClosedList = closedList.Contains(currentNeighbor);
+                bool inOpenList = openList.Contains(currentNeighbor);
+                bool betterHeuristicFound = totalEstimatedValue < currentNeighbor.totalEstimatedValue;
+                
+                if(inClosedList && betterHeuristicFound)
+                {
+                    UpdateNodeValues (currentNeighbor, node, costSoFar, heuristicValue, totalEstimatedValue);
+                    closedList.Remove (currentNeighbor);
+                    openList.Add (currentNeighbor);
+                }
+                else if (inOpenList && betterHeuristicFound)
+                {
+                    UpdateNodeValues (currentNeighbor, node, costSoFar, heuristicValue, totalEstimatedValue);
+                }
+                else if (!inClosedList && !inOpenList)
+                {
+                    UpdateNodeValues (currentNeighbor, node, costSoFar, heuristicValue, totalEstimatedValue);
+                    openList.Add (currentNeighbor);
+                }
+            }
+        }
+        openList.Sort((TileNode x, TileNode y) => { return x.costSoFar.CompareTo (y.costSoFar); });
+    }
+
+    void ComposePathList()
+    {
+        pathList.Add (endNode);
+        while(pathList.Count > 0 && pathList[pathList.Count - 1] != startNode)
+        {
+            TileNode previous = pathList[pathList.Count - 1].previous;
+            if(previous == null)
+            {
+                pathList.Clear ();
+                return;
+            }
+            pathList.Add (previous);
+        }
+        pathList.Reverse ();
     }
 
     private void UpdateNodeValues(TileNode n, TileNode prev, float cost, float heuristic, float total)
