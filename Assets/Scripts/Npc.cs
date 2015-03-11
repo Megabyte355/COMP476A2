@@ -61,4 +61,9 @@ public class Npc : MonoBehaviour
     {
         arrive.target = target;
     }
+
+    public Transform GetTarget()
+    {
+        return arrive.target;
+    }
 }

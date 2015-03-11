@@ -54,6 +54,7 @@ public class TileGraphNavigator : MonoBehaviour
                     endNode = targetNode;
                     nodeIndex = 1;
                     ComputeNewPath ();
+                    npc.SetTarget (pathList[nodeIndex].transform);
                 }
             }
 
@@ -64,6 +65,12 @@ public class TileGraphNavigator : MonoBehaviour
             // There are more nodes to follow
 
             //npc.SetTarget (endNode.transform);
+            if((npc.transform.position - pathList[nodeIndex].transform.position).magnitude < graphGenerator.overlapSphereRadius)
+            {
+                nodeIndex++;
+                npc.SetTarget (pathList[nodeIndex].transform);
+            }
+
 
         }
 //        else if(pathList[pathList.Count - 1] != endNode)
@@ -137,7 +144,6 @@ public class TileGraphNavigator : MonoBehaviour
 
         // TODO
         ComputeStartNode ();
-        nodeIndex = 0;
 
         // Switch case for algorithms
         calculateAStar ();

@@ -5,9 +5,9 @@ using System.Collections.Generic;
 public class TileGraphGenerator : MonoBehaviour
 {
     public Vector3 levelSize;
-    public int tileDensity;
+    public int tileDensity; 
     private Vector3 tileSize;
-    private float overlapSphereRadius;
+    public float overlapSphereRadius;
 
 //    public TileNode startNode;
 //    public TileNode endNode;

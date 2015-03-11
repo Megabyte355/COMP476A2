@@ -9,7 +9,7 @@ public class Mode : MonoBehaviour
     
     void Start ()
     {
-        mode = ImplementationMode.Kinematic;
+        mode = ImplementationMode.Steering;
     }
     
     void Update ()
