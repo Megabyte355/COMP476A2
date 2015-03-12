@@ -54,6 +54,11 @@ public class PovNode : MonoBehaviour, System.IComparable<PovNode>
         renderer.enabled = visibility;
     }
 
+    public void ResetColor()
+    {
+        transform.renderer.material.color = originalColor;
+    }
+
     public void SetCluster(Cluster c)
     {
         cluster = c;

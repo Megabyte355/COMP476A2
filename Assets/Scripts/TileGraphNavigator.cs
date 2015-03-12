@@ -157,28 +157,62 @@ public class TileGraphNavigator : MonoBehaviour
             node.ResetColor();
         }
 
-        if(pathList.Count > 1) {
-            foreach (TileNode node in openList)
-            {
-                node.renderer.material.color = Color.yellow;
-            }
-            foreach (TileNode node in closedList)
-            {
-                node.renderer.material.color = Color.yellow;
-            }
-            foreach (TileNode node in pathList)
-            {
-                node.renderer.material.color = Color.green;
-            }
-        }
-        if(startNode != null)
+        foreach(PovNode node in povNodes)
         {
-            startNode.renderer.material.color = Color.blue;
+            node.ResetColor();
         }
-        if(endNode != null) 
+
+        if(selectedGraph == GraphMethod.Grid)
         {
-            endNode.renderer.material.color = Color.red;
+            if(pathList.Count > 1) {
+                foreach (TileNode node in openList)
+                {
+                    node.renderer.material.color = Color.yellow;
+                }
+                foreach (TileNode node in closedList)
+                {
+                    node.renderer.material.color = Color.yellow;
+                }
+                foreach (TileNode node in pathList)
+                {
+                    node.renderer.material.color = Color.green;
+                }
+            }
+            if(startNode != null)
+            {
+                startNode.renderer.material.color = Color.blue;
+            }
+            if(endNode != null) 
+            {
+                endNode.renderer.material.color = Color.red;
+            }
         }
+        else if (selectedGraph == GraphMethod.PointOfView)
+        {
+            if(povPathList.Count > 1) {
+                foreach (PovNode node in openPovList)
+                {
+                    node.renderer.material.color = Color.yellow;
+                }
+                foreach (PovNode node in closedPovList)
+                {
+                    node.renderer.material.color = Color.yellow;
+                }
+                foreach (PovNode node in povPathList)
+                {
+                    node.renderer.material.color = Color.green;
+                }
+            }
+            if(startPovNode != null)
+            {
+                startPovNode.renderer.material.color = Color.blue;
+            }
+            if(endPovNode != null) 
+            {
+                endPovNode.renderer.material.color = Color.red;
+            }
+        }
+
     }
 
     void OnGUI() 
