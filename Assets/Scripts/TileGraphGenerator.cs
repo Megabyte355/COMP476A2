@@ -22,9 +22,13 @@ public class TileGraphGenerator : MonoBehaviour
 
     [SerializeField]
     TileNode tileNodePrefab;
+    GameObject gridNodes;
+    GameObject povNodes;
 
     void Awake ()
     {
+        gridNodes = GameObject.FindGameObjectWithTag("GridNodes");
+        gridNodes = GameObject.FindGameObjectWithTag("PovNodes");
         tileSize = new Vector3(levelSize.x / tileDensity, 0, levelSize.z / tileDensity);
         overlapSphereRadius = tileSize.magnitude / 2;
         GenerateTiles();
@@ -49,6 +53,7 @@ public class TileGraphGenerator : MonoBehaviour
                 if(Physics.OverlapSphere(currentLocation, overlapSphereRadius, 1 << layoutLayer).Length == 0)
                 {
                     TileNode n = Instantiate (tileNodePrefab, currentLocation, Quaternion.identity) as TileNode;
+                    n.transform.parent = gridNodes.transform;
 //                    tileNodeCollection[col, row] = n;
                     tileNodeList.Add (n);
                 }

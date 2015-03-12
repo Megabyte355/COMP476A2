@@ -69,24 +69,23 @@ public class TileGraphNavigator : MonoBehaviour
                     endNode = targetNode;
                     nodeIndex = 1;
                     ComputeNewPath ();
-                    npc.SetTarget (pathList[nodeIndex].transform);
+                    if(pathList.Count != 0)
+                    {
+                        npc.SetTarget (pathList[nodeIndex].transform);
+                    }
                 }
             }
 
         }
 
-        if(nodeIndex != pathList.Count - 1)
+        if(pathList.Count != 0 && nodeIndex != pathList.Count - 1)
         {
             // There are more nodes to follow
-
-            //npc.SetTarget (endNode.transform);
             if((npc.transform.position - pathList[nodeIndex].transform.position).magnitude < graphGenerator.overlapSphereRadius)
             {
                 nodeIndex++;
                 npc.SetTarget (pathList[nodeIndex].transform);
             }
-
-
         }
 //        else if(pathList[pathList.Count - 1] != endNode)
 //        {
