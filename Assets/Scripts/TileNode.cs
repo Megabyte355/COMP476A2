@@ -64,6 +64,11 @@ public class TileNode : MonoBehaviour, System.IComparable<TileNode>
         renderer.enabled = visibility;
     }
 
+    public Cluster GetCluster()
+    {
+        return cluster;
+    }
+
     public void SetCluster(Cluster c)
     {
         cluster = c;

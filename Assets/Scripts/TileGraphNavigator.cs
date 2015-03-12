@@ -96,21 +96,28 @@ public class TileGraphNavigator : MonoBehaviour
         {
             // If it's a cube, select new path
 
-            Ray mouseClickRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if(Physics.Raycast (mouseClickRay, out hit))
+            if(selectedGraph == GraphMethod.Grid)
             {
-                TileNode targetNode = hit.collider.GetComponent<TileNode>();
-                if(targetNode != null && targetNode != startNode && targetNode != endNode)
+                Ray mouseClickRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
+                if(Physics.Raycast (mouseClickRay, out hit))
                 {
-                    endNode = targetNode;
-                    nodeIndex = 1;
-                    ComputeNewPath ();
-                    if(pathList.Count != 0)
+                    TileNode targetNode = hit.collider.GetComponent<TileNode>();
+                    if(targetNode != null && targetNode != startNode && targetNode != endNode)
                     {
-                        npc.SetTarget (pathList[nodeIndex].transform);
+                        endNode = targetNode;
+                        nodeIndex = 1;
+                        ComputeNewPath ();
+                        if(pathList.Count != 0)
+                        {
+                            npc.SetTarget (pathList[nodeIndex].transform);
+                        }
                     }
                 }
+            }
+            else if (selectedGraph == GraphMethod.PointOfView)
+            {
+                // TODO
             }
 
         }
@@ -124,25 +131,13 @@ public class TileGraphNavigator : MonoBehaviour
                 npc.SetTarget (pathList[nodeIndex].transform);
             }
         }
-//        else if(pathList[pathList.Count - 1] != endNode)
-//        {
-//            // End node has changed - The path needs to be recomputed
-//            nodeIndex = 1;
-//            ComputeNewPath();
-//        }
-        else
-        {
-            // End node reaached
-        }
 
 
 
         // Set color of nodes
-        //targetNode.renderer.material.color = Color.red;
-//        startNode.renderer.material.SetColor (
 
-        foreach(TileNode node in tileNodes) {
-//            node.TurnVisible ();
+        foreach(TileNode node in tileNodes)
+        {
             node.ResetColor();
         }
 
@@ -211,7 +206,7 @@ public class TileGraphNavigator : MonoBehaviour
             calculateAStar ();
             break;
         case PathAlgorithm.Cluster:
-            // TODO
+            calculateCluster();
             break;
         case PathAlgorithm.Dijkstra:
             calculateDijkstra ();
@@ -245,6 +240,53 @@ public class TileGraphNavigator : MonoBehaviour
         }
         
         ComposePathList();
+    }
+
+    void calculateCluster()
+    {
+        Cluster startCluster = startNode.GetCluster ();
+        Cluster endCluster = endNode.GetCluster ();
+
+        if(startCluster == endCluster)
+        {
+            // Simply use A* algorithm
+            calculateAStar ();
+        }
+        else
+        {
+            List<TileNode> interClusterPath;
+            if(startCluster.bestPathToCluster.TryGetValue(endCluster, out interClusterPath))
+            {
+                nodeIndex = 0;
+
+                // Save a backup
+                TileNode originalStart = startNode;
+                TileNode originalEnd = endNode;
+
+                List<TileNode> beginning = ComputePathAStar(originalStart, interClusterPath[0]);
+                List<TileNode> beginOpenList = new List<TileNode>(openList);
+                List<TileNode> beginClosedList = new List<TileNode>(closedList);
+
+                List<TileNode> ending = ComputePathAStar(interClusterPath[interClusterPath.Count - 1], originalEnd);
+                List<TileNode> endOpenList = new List<TileNode>(openList);
+                List<TileNode> endClosedList = new List<TileNode>(closedList);
+
+                // Compose pathList
+                pathList.AddRange (beginning);
+                pathList.AddRange (interClusterPath);
+                pathList.AddRange (ending);
+
+                openList.AddRange (beginOpenList);
+                openList.AddRange (beginClosedList);
+                openList.AddRange (endOpenList);
+                openList.AddRange (endClosedList);
+
+                // Restore backup
+                startNode = originalStart;
+                endNode = originalEnd;
+
+            }
+        }
     }
 
     void visitNodeAStar(TileNode node)
@@ -345,6 +387,16 @@ public class TileGraphNavigator : MonoBehaviour
         pathList.Reverse ();
     }
 
+    void Reset()
+    {
+        endNode = null;
+        pathList.Clear ();
+        openList.Clear ();
+        closedList.Clear ();
+        ComputeStartNode ();
+        npc.ResetTarget();
+    }
+    
     private void UpdateNodeValues(TileNode n, TileNode prev, float cost, float heuristic, float total)
     {
         n.previous = prev;
@@ -353,5 +405,47 @@ public class TileGraphNavigator : MonoBehaviour
         n.totalEstimatedValue = total;
     }
 
+    public List<TileNode> ComputePathAStarWithoutCleaning(TileNode start, TileNode end)
+    {
+        startNode = start;
+        endNode = end;
 
+        pathList.Clear ();
+        openList.Clear ();
+        closedList.Clear ();
+        calculateAStar ();
+
+        return new List<TileNode>(pathList);
+    }
+
+    public List<TileNode> ComputePathAStar(TileNode start, TileNode end)
+    {
+        List<TileNode> result = ComputePathAStarWithoutCleaning(start, end);
+        
+        // Clean up
+        Reset ();
+        endNode = startNode.GetNeighbors()[0];
+        startNode.costSoFar = 0.0f;
+        startNode.heuristicValue = (endNode.transform.position - startNode.transform.position).magnitude;
+        
+        return result;
+    }
+
+    public float CalculateCost(TileNode start, TileNode end)
+    {
+        List<TileNode> path = ComputePathAStar (start, end);
+
+        return CalculateCost (path);
+    }
+
+    public float CalculateCost(List<TileNode> path)
+    {
+        float cumulativeCost = 0.0f;
+        for(int i = 0; i < path.Count - 1; i++)
+        {
+            cumulativeCost += (path[i].transform.position - path[i + 1].transform.position).magnitude;
+        }
+        
+        return cumulativeCost;
+    }
 }

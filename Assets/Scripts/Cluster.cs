@@ -11,8 +11,9 @@ public class Cluster : MonoBehaviour
     public Dictionary<Cluster, PovNode> povExitNodes = new Dictionary<Cluster, PovNode>();
     public Dictionary<Cluster, TileNode> tileExitNodes = new Dictionary<Cluster, TileNode>();
 
+    public Dictionary<Cluster, List<TileNode>> bestPathToCluster = new Dictionary<Cluster, List<TileNode>>();
 
-    // TODO: TEST
+    // DEMO PURPOSES
     public List<Cluster> povExitNodeKeys;
     public List<PovNode> povExitNodeValues;
     public List<Cluster> tileExitNodeKeys;
@@ -32,7 +33,7 @@ public class Cluster : MonoBehaviour
             }
         }
     }
-
+    
     public void Bind(TileNode tn)
     {
         tileNodeList.Add (tn);

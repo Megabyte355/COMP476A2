@@ -6,13 +6,18 @@ public class ClusterManager : MonoBehaviour
 {
     public List<Cluster> clusterCollection;
     int layoutLayer;
+
+    TileGraphNavigator tileGraphNavigator;
     void Start ()
     {
         layoutLayer = GameObject.FindGameObjectWithTag("TileGraphGenerator").GetComponent<TileGraphGenerator>().layoutLayer;
+        tileGraphNavigator = GameObject.FindGameObjectWithTag("TileGraphNavigator").GetComponent<TileGraphNavigator>();
 
         ComputePovNodeBridges();
         ComputeTileNodeBridges();
+        ComputeTileNodeClusterTable();
     }
+
 
     void ComputePovNodeBridges()
     {
@@ -98,4 +103,75 @@ public class ClusterManager : MonoBehaviour
         }
     }
 
+    void ComputeTileNodeClusterTable()
+    {
+        List<Cluster> closedList = new List<Cluster>();
+        List<Cluster> openList = new List<Cluster>();
+
+        TileNode veryStart;
+        TileNode veryEnd;
+
+        foreach(Cluster currentCluster in clusterCollection)
+        {
+            foreach(Cluster otherCluster in clusterCollection)
+            {
+
+                if(currentCluster != otherCluster)
+                {
+                    //List<TileNode> currentExitNodes =  currentCluster.tileExitNodes.Values;
+                    List<TileNode> currentExitNodes =  new List<TileNode>(currentCluster.tileExitNodes.Values);
+                    List<TileNode> otherExitNodes =  new List<TileNode>(otherCluster.tileExitNodes.Values);
+                    float minDistance = -1.0f;
+                    List<TileNode> bestPath = null;
+                    
+                    foreach(TileNode currentNode in currentExitNodes)
+                    {
+                        foreach(TileNode otherNode in otherExitNodes)
+                        {
+                            List<TileNode> potentialPath = tileGraphNavigator.ComputePathAStar(currentNode, otherNode);
+                            float distance = tileGraphNavigator.CalculateCost(potentialPath);
+                            
+                            // First computation or better path found
+                            if(minDistance < 0 || distance < minDistance)
+                            {
+                                minDistance = distance;
+                                bestPath = potentialPath;
+                            }
+                        }
+                    }
+                    
+                    // Store best path in this cluster's "table"
+                    currentCluster.bestPathToCluster.Add (otherCluster, bestPath);
+//                    bestPathKeys.Add (otherCluster);
+                }
+
+            }
+        }
+
+
+//        foreach(Cluster currentCluster in clusterCollection)
+//        {
+//            closedList.Add(currentCluster);
+//            foreach(Cluster neighborCluster in currentCluster.neighborClusters)
+//            {
+//
+//            }
+//        }
+
+
+
+
+
+
+//        TileNode start = clusterCollection[3].tileExitNodeValues[0];
+//        TileNode end = clusterCollection[3].tileExitNodeValues[1];
+//        TileGraphNavigator nav = GameObject.FindGameObjectWithTag("TileGraphNavigator").GetComponent<TileGraphNavigator>();
+//        float distance = nav.CalculateCost(start,end);
+//        
+//        Debug.Log("From Custer Manager: " + distance);
+    }
+
+
+    // TODO: TEST
+//    public List<Cluster> bestPathKeys;
 }
