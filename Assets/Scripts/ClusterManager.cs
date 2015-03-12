@@ -52,7 +52,7 @@ public class ClusterManager : MonoBehaviour
                 // Save exit nodes on the cluster itself
                 currentCluster.povExitNodes.Add (currentNeighbor,currentMin);
                 
-                // TODO: TEST
+                // TEST
                 currentCluster.povExitNodeKeys.Add (currentNeighbor);
                 currentCluster.povExitNodeValues.Add (currentMin);
             }
@@ -93,7 +93,7 @@ public class ClusterManager : MonoBehaviour
                 // Save exit nodes on the cluster itself
                 currentCluster.tileExitNodes.Add (currentNeighbor,currentMin);
                 
-                // TODO: TEST
+                // TEST
                 currentCluster.tileExitNodeKeys.Add (currentNeighbor);
                 currentCluster.tileExitNodeValues.Add (currentMin);
             }
