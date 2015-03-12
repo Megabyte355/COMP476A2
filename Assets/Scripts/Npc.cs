@@ -4,9 +4,6 @@ using System.Collections;
 public class Npc : MonoBehaviour
 {
     Mode implementationMode;
-    enum NpcState { Idle, Arrive, Wander, Flee, Tagged };
-    [SerializeField]
-    NpcState currentState = NpcState.Idle;
     
     // Kinematic seek and arrive
     public float SeekSpeed;

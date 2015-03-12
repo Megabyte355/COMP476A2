@@ -8,18 +8,10 @@ public class TileGraphGenerator : MonoBehaviour
     public int tileDensity; 
     private Vector3 tileSize;
     public float overlapSphereRadius;
-
-//    public TileNode startNode;
-//    public TileNode endNode;
-
-//    public TileNode[,] tileNodeCollection;
     public int layoutLayer;
 
     public List<TileNode> tileNodeList = new List<TileNode>();
     public List<PovNode> povNodeList = new List<PovNode>();
-//    public List<TileNode> pathList = new List<TileNode>();
-//    public List<TileNode> openList = new List<TileNode>();
-//    public List<TileNode> closedList = new List<TileNode>();
 
     [SerializeField]
     TileNode tileNodePrefab;
@@ -38,8 +30,6 @@ public class TileGraphGenerator : MonoBehaviour
 
     void GenerateTiles()
     {
-//        tileNodeCollection = new TileNode[tileDensity, tileDensity];
-
         for(int col = 0; col < tileDensity; col++)
         {
             for(int row = 0; row < tileDensity; row++)
@@ -54,7 +44,6 @@ public class TileGraphGenerator : MonoBehaviour
                 {
                     TileNode n = Instantiate (tileNodePrefab, currentLocation, Quaternion.identity) as TileNode;
                     n.transform.parent = gridNodes.transform;
-//                    tileNodeCollection[col, row] = n;
                     tileNodeList.Add (n);
                 }
             }

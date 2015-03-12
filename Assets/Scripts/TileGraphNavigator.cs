@@ -135,7 +135,6 @@ public class TileGraphNavigator : MonoBehaviour
 
 
         // Set color of nodes
-
         foreach(TileNode node in tileNodes)
         {
             node.ResetColor();

@@ -18,7 +18,6 @@ public class ClusterManager : MonoBehaviour
         ComputeTileNodeClusterTable();
     }
 
-
     void ComputePovNodeBridges()
     {
         float minDistance;
@@ -31,7 +30,6 @@ public class ClusterManager : MonoBehaviour
                 List<PovNode> nodesInNeighbor = currentNeighbor.povNodeList;
                 
                 PovNode currentMin = nodesInCurrent[0];
-                //PovNode neighborMin = nodesInNeighbor[0];
                 minDistance = (nodesInCurrent[0].transform.position - nodesInNeighbor[0].transform.position).magnitude;
                 
                 // Find the two nodes with the shortest connection
@@ -46,7 +44,6 @@ public class ClusterManager : MonoBehaviour
                             {
                                 minDistance = distance;
                                 currentMin = povNode1;
-                                //neighborMin = povNode2;
                             }
                         }
                     }
@@ -105,20 +102,12 @@ public class ClusterManager : MonoBehaviour
 
     void ComputeTileNodeClusterTable()
     {
-        List<Cluster> closedList = new List<Cluster>();
-        List<Cluster> openList = new List<Cluster>();
-
-        TileNode veryStart;
-        TileNode veryEnd;
-
         foreach(Cluster currentCluster in clusterCollection)
         {
             foreach(Cluster otherCluster in clusterCollection)
             {
-
                 if(currentCluster != otherCluster)
                 {
-                    //List<TileNode> currentExitNodes =  currentCluster.tileExitNodes.Values;
                     List<TileNode> currentExitNodes =  new List<TileNode>(currentCluster.tileExitNodes.Values);
                     List<TileNode> otherExitNodes =  new List<TileNode>(otherCluster.tileExitNodes.Values);
                     float minDistance = -1.0f;
@@ -142,36 +131,8 @@ public class ClusterManager : MonoBehaviour
                     
                     // Store best path in this cluster's "table"
                     currentCluster.bestPathToCluster.Add (otherCluster, bestPath);
-//                    bestPathKeys.Add (otherCluster);
                 }
-
             }
         }
-
-
-//        foreach(Cluster currentCluster in clusterCollection)
-//        {
-//            closedList.Add(currentCluster);
-//            foreach(Cluster neighborCluster in currentCluster.neighborClusters)
-//            {
-//
-//            }
-//        }
-
-
-
-
-
-
-//        TileNode start = clusterCollection[3].tileExitNodeValues[0];
-//        TileNode end = clusterCollection[3].tileExitNodeValues[1];
-//        TileGraphNavigator nav = GameObject.FindGameObjectWithTag("TileGraphNavigator").GetComponent<TileGraphNavigator>();
-//        float distance = nav.CalculateCost(start,end);
-//        
-//        Debug.Log("From Custer Manager: " + distance);
     }
-
-
-    // TODO: TEST
-//    public List<Cluster> bestPathKeys;
 }
