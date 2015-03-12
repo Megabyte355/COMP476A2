@@ -4,10 +4,16 @@ using System.Collections.Generic;
 
 public class Cluster : MonoBehaviour
 {
-    [SerializeField]
-    List<TileNode> tileNodeList = new List<TileNode>();
-    [SerializeField]
-    List<PovNode> povNodeList = new List<PovNode>();
+    public List<TileNode> tileNodeList = new List<TileNode>();
+    public List<PovNode> povNodeList = new List<PovNode>();
+
+    public List<Cluster> neighborClusters;
+    public Dictionary<Cluster, PovNode> povExitNodes = new Dictionary<Cluster, PovNode>();
+
+
+    // TEST
+    public List<Cluster> povExitNodeKeys;
+    public List<PovNode> povExitNodeValues;
 
     void Start()
     {
@@ -24,13 +30,15 @@ public class Cluster : MonoBehaviour
         }
     }
 
-    public void AddNode(TileNode tn)
+    public void Bind(TileNode tn)
     {
         tileNodeList.Add (tn);
+        tn.SetCluster(this);
     }
 
-    public void AddNode(PovNode pn)
+    public void Bind(PovNode pn)
     {
         povNodeList.Add (pn);
+        pn.SetCluster (this);
     }
 }

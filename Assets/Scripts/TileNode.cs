@@ -1,9 +1,11 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
 public class TileNode : MonoBehaviour, System.IComparable<TileNode>
 {
+    [SerializeField]
+    Cluster cluster;
     [SerializeField]
     List<TileNode> neighbors = new List<TileNode>();
     public TileNode previous;
@@ -24,11 +26,11 @@ public class TileNode : MonoBehaviour, System.IComparable<TileNode>
             ClusterChild clusterChild = hit.collider.transform.GetComponent<ClusterChild>();
             if(cluster != null)
             {
-                cluster.AddNode(this);
+                cluster.Bind(this);
             }
             else if(clusterChild != null)
             {
-                clusterChild.AddNode(this);
+                clusterChild.Bind(this);
             }
         }
     }
@@ -60,5 +62,10 @@ public class TileNode : MonoBehaviour, System.IComparable<TileNode>
     public void SetVisibility(bool visibility)
     {
         renderer.enabled = visibility;
+    }
+
+    public void SetCluster(Cluster c)
+    {
+        cluster = c;
     }
 }

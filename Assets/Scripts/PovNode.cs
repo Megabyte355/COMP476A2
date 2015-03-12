@@ -5,6 +5,8 @@ using System.Collections.Generic;
 public class PovNode : MonoBehaviour
 {
     [SerializeField]
+    Cluster cluster;
+    [SerializeField]
     List<PovNode> visibleNeighbors = new List<PovNode>();
 
     void Awake ()
@@ -20,11 +22,11 @@ public class PovNode : MonoBehaviour
             ClusterChild clusterChild = hit.collider.transform.GetComponent<ClusterChild>();
             if(cluster != null)
             {
-                cluster.AddNode(this);
+                cluster.Bind(this);
             }
             else if(clusterChild != null)
             {
-                clusterChild.AddNode(this);
+                clusterChild.Bind(this);
             }
         }
     }
@@ -42,5 +44,10 @@ public class PovNode : MonoBehaviour
     public void SetVisibility(bool visibility)
     {
         renderer.enabled = visibility;
+    }
+
+    public void SetCluster(Cluster c)
+    {
+        cluster = c;
     }
 }

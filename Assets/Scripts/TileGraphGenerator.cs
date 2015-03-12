@@ -33,8 +33,7 @@ public class TileGraphGenerator : MonoBehaviour
         tileSize = new Vector3(levelSize.x / tileDensity, 0, levelSize.z / tileDensity);
         overlapSphereRadius = tileSize.magnitude / 2;
         GenerateTiles();
-        AssignTileNeighbors();
-
+        AssignTileNodeNeighbors();
     }
 
     void GenerateTiles()
@@ -62,7 +61,7 @@ public class TileGraphGenerator : MonoBehaviour
         }
     }
 
-    void AssignTileNeighbors()
+    void AssignTileNodeNeighbors()
     {
         foreach(TileNode currentNode in tileNodeList) {
             

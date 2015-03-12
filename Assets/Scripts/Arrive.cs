@@ -144,4 +144,10 @@ public class Arrive : MonoBehaviour
             transform.rotation = Quaternion.LookRotation(targetAlignment);
         }
     }
+
+    public void ResetTarget()
+    {
+        velocity = Vector3.zero;
+        target = null;
+    }
 }

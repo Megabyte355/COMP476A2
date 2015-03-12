@@ -66,4 +66,9 @@ public class Npc : MonoBehaviour
     {
         return arrive.target;
     }
+
+    public void ResetTarget()
+    {
+        arrive.ResetTarget();
+    }
 }

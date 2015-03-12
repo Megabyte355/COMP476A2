@@ -63,7 +63,7 @@ public class TileGraphNavigator : MonoBehaviour
             openList.Clear ();
             closedList.Clear ();
             ComputeStartNode ();
-            npc.SetTarget (null);
+            npc.ResetTarget();
 
             // Adjust visibility
             switch(selectedGraph)

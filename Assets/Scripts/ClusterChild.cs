@@ -6,13 +6,13 @@ public class ClusterChild : MonoBehaviour
     [SerializeField]
     Cluster parentCluster;
 
-    public void AddNode(TileNode tn)
+    public void Bind(TileNode tn)
     {
-        parentCluster.AddNode(tn);
+        parentCluster.Bind(tn);
     }
 
-    public void AddNode(PovNode pn)
+    public void Bind(PovNode pn)
     {
-        parentCluster.AddNode(pn);
+        parentCluster.Bind(pn);
     }
 }
