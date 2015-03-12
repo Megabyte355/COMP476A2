@@ -1,15 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ClusterChild : MonoBehaviour {
+public class ClusterChild : MonoBehaviour
+{
+    [SerializeField]
+    Cluster parentCluster;
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+    public void AddNode(TileNode tn)
+    {
+        parentCluster.AddNode(tn);
+    }
+
+    public void AddNode(PovNode pn)
+    {
+        parentCluster.AddNode(pn);
+    }
 }

@@ -20,7 +20,16 @@ public class TileNode : MonoBehaviour, System.IComparable<TileNode>
         RaycastHit hit;
         if(Physics.Raycast(transform.position, -Vector3.up, out hit))
         {
-            Debug.Log(hit.collider.transform.gameObject.name);
+            Cluster cluster = hit.collider.transform.GetComponent<Cluster>();
+            ClusterChild clusterChild = hit.collider.transform.GetComponent<ClusterChild>();
+            if(cluster != null)
+            {
+                cluster.AddNode(this);
+            }
+            else if(clusterChild != null)
+            {
+                clusterChild.AddNode(this);
+            }
         }
     }
 
