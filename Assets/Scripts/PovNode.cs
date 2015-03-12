@@ -1,8 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class PovNode : MonoBehaviour
 {
+    [SerializeField]
+    List<PovNode> visibleNeighbors = new List<PovNode>();
+
     void Awake ()
     {
         TileGraphGenerator generator = GameObject.FindGameObjectWithTag("TileGraphGenerator").GetComponent<TileGraphGenerator>();
@@ -23,6 +27,16 @@ public class PovNode : MonoBehaviour
                 clusterChild.AddNode(this);
             }
         }
+    }
+
+    public void AddVisibleNeighbor(PovNode node)
+    {
+        visibleNeighbors.Add (node);
+    }
+
+    public List<PovNode> GetVisibleNeighbors()
+    {
+        return visibleNeighbors;
     }
 
     public void SetVisibility(bool visibility)

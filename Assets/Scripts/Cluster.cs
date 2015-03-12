@@ -9,6 +9,21 @@ public class Cluster : MonoBehaviour
     [SerializeField]
     List<PovNode> povNodeList = new List<PovNode>();
 
+    void Start()
+    {
+        int layoutLayer = GameObject.FindGameObjectWithTag("TileGraphGenerator").GetComponent<TileGraphGenerator>().layoutLayer;
+        foreach(PovNode node in povNodeList)
+        {
+            foreach(PovNode potentialNeighbor in povNodeList)
+            {
+                if(node != potentialNeighbor && !Physics.Linecast(node.transform.position, potentialNeighbor.transform.position, 1 << layoutLayer))
+                {
+                    node.AddVisibleNeighbor(potentialNeighbor);
+                }
+            }
+        }
+    }
+
     public void AddNode(TileNode tn)
     {
         tileNodeList.Add (tn);
