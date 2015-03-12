@@ -9,12 +9,15 @@ public class Cluster : MonoBehaviour
 
     public List<Cluster> neighborClusters;
     public Dictionary<Cluster, PovNode> povExitNodes = new Dictionary<Cluster, PovNode>();
+    public Dictionary<Cluster, TileNode> tileExitNodes = new Dictionary<Cluster, TileNode>();
 
 
-    // TEST
+    // TODO: TEST
     public List<Cluster> povExitNodeKeys;
     public List<PovNode> povExitNodeValues;
-
+    public List<Cluster> tileExitNodeKeys;
+    public List<TileNode> tileExitNodeValues;
+    
     void Start()
     {
         int layoutLayer = GameObject.FindGameObjectWithTag("TileGraphGenerator").GetComponent<TileGraphGenerator>().layoutLayer;

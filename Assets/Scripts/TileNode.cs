@@ -17,7 +17,7 @@ public class TileNode : MonoBehaviour, System.IComparable<TileNode>
     public float heuristicValue;
     public float totalEstimatedValue;
 
-    void Start()
+    void Awake()
     {
         RaycastHit hit;
         if(Physics.Raycast(transform.position, -Vector3.up, out hit))
