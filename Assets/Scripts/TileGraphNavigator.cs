@@ -257,19 +257,31 @@ public class TileGraphNavigator : MonoBehaviour
             List<TileNode> interClusterPath;
             if(startCluster.bestPathToCluster.TryGetValue(endCluster, out interClusterPath))
             {
-                nodeIndex = 0;
+
 
                 // Save a backup
                 TileNode originalStart = startNode;
                 TileNode originalEnd = endNode;
 
-                List<TileNode> beginning = ComputePathAStar(originalStart, interClusterPath[0]);
+                pathList.Clear ();
+                openList.Clear ();
+                closedList.Clear ();
+
+                List<TileNode> beginning = ComputePathAStarWithoutCleaning(originalStart, interClusterPath[0]);
                 List<TileNode> beginOpenList = new List<TileNode>(openList);
                 List<TileNode> beginClosedList = new List<TileNode>(closedList);
 
-                List<TileNode> ending = ComputePathAStar(interClusterPath[interClusterPath.Count - 1], originalEnd);
+                pathList.Clear ();
+                openList.Clear ();
+                closedList.Clear ();
+
+                List<TileNode> ending = ComputePathAStarWithoutCleaning(interClusterPath[interClusterPath.Count - 1], originalEnd);
                 List<TileNode> endOpenList = new List<TileNode>(openList);
                 List<TileNode> endClosedList = new List<TileNode>(closedList);
+
+                pathList.Clear ();
+                openList.Clear ();
+                closedList.Clear ();
 
                 // Compose pathList
                 pathList.AddRange (beginning);
@@ -277,13 +289,16 @@ public class TileGraphNavigator : MonoBehaviour
                 pathList.AddRange (ending);
 
                 openList.AddRange (beginOpenList);
-                openList.AddRange (beginClosedList);
+                closedList.AddRange (beginClosedList);
                 openList.AddRange (endOpenList);
-                openList.AddRange (endClosedList);
+                closedList.AddRange (endClosedList);
 
                 // Restore backup
                 startNode = originalStart;
                 endNode = originalEnd;
+
+                nodeIndex = 1;
+                npc.ResetTarget();
 
             }
         }
@@ -395,6 +410,10 @@ public class TileGraphNavigator : MonoBehaviour
         closedList.Clear ();
         ComputeStartNode ();
         npc.ResetTarget();
+
+        endNode = startNode.GetNeighbors()[0];
+        startNode.costSoFar = 0.0f;
+        startNode.heuristicValue = (endNode.transform.position - startNode.transform.position).magnitude;
     }
     
     private void UpdateNodeValues(TileNode n, TileNode prev, float cost, float heuristic, float total)
@@ -424,9 +443,6 @@ public class TileGraphNavigator : MonoBehaviour
         
         // Clean up
         Reset ();
-        endNode = startNode.GetNeighbors()[0];
-        startNode.costSoFar = 0.0f;
-        startNode.heuristicValue = (endNode.transform.position - startNode.transform.position).magnitude;
         
         return result;
     }
