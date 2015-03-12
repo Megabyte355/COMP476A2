@@ -318,15 +318,32 @@ public class TileGraphNavigator : MonoBehaviour
 
     void calculateDijkstra()
     {
-        openList.Add (startNode);
-        visitNodeDijkstra(startNode);
-        
-        while(openList.Count > 0 && openList[0] != endNode)
+
+        if(selectedGraph == GraphMethod.Grid)
         {
-            visitNodeDijkstra(openList[0]);
+            openList.Add (startNode);
+            visitNodeDijkstra(startNode);
+            
+            while(openList.Count > 0 && openList[0] != endNode)
+            {
+                visitNodeDijkstra(openList[0]);
+            }
+            
+            ComposePathList();
         }
-        
-        ComposePathList();
+        else if(selectedGraph == GraphMethod.PointOfView)
+        {
+            openPovList.Add (startPovNode);
+            visitNodeDijkstra(startPovNode);
+            
+            while(openPovList.Count > 0 && openPovList[0] != endPovNode)
+            {
+                visitNodeDijkstra(openPovList[0]);
+            }
+            
+            ComposePovPathList();
+        }
+
     }
 
     void calculateCluster()
@@ -486,6 +503,48 @@ public class TileGraphNavigator : MonoBehaviour
                 float distance = (currentNeighbor.transform.position - node.transform.position).magnitude;
                 float costSoFar = node.costSoFar + distance;
                 float heuristicValue = (endPovNode.transform.position - currentNeighbor.transform.position).magnitude;
+                float totalEstimatedValue = costSoFar + heuristicValue;
+                
+                bool inClosedList = closedPovList.Contains(currentNeighbor);
+                bool inOpenList = openPovList.Contains(currentNeighbor);
+                bool betterHeuristicFound = totalEstimatedValue < currentNeighbor.totalEstimatedValue;
+                
+                if(inClosedList && betterHeuristicFound)
+                {
+                    UpdateNodeValues (currentNeighbor, node, costSoFar, heuristicValue, totalEstimatedValue);
+                    closedPovList.Remove (currentNeighbor);
+                    openPovList.Add (currentNeighbor);
+                }
+                else if (inOpenList && betterHeuristicFound)
+                {
+                    UpdateNodeValues (currentNeighbor, node, costSoFar, heuristicValue, totalEstimatedValue);
+                }
+                else if (!inClosedList && !inOpenList)
+                {
+                    UpdateNodeValues (currentNeighbor, node, costSoFar, heuristicValue, totalEstimatedValue);
+                    openPovList.Add (currentNeighbor);
+                }
+            }
+        }
+        openPovList.Sort();
+    }
+
+
+    void visitNodeDijkstra(PovNode node)
+    {
+        closedPovList.Add (node);
+        openPovList.Remove (node);
+        
+        List<PovNode> neighbors = node.GetVisibleNeighbors();
+        
+        foreach(PovNode currentNeighbor in neighbors)
+        {
+            if(!Physics.Linecast (node.transform.position, currentNeighbor.transform.position, 1 << graphGenerator.layoutLayer))
+            {
+                // Neighbor stats
+                float distance = (currentNeighbor.transform.position - node.transform.position).magnitude;
+                float costSoFar = node.costSoFar + distance;
+                float heuristicValue = 0.0f;
                 float totalEstimatedValue = costSoFar + heuristicValue;
                 
                 bool inClosedList = closedPovList.Contains(currentNeighbor);
