@@ -56,4 +56,9 @@ public class TileNode : MonoBehaviour, System.IComparable<TileNode>
     {
         transform.renderer.material.color = originalColor;
     }
+
+    public void SetVisibility(bool visibility)
+    {
+        renderer.enabled = visibility;
+    }
 }

@@ -20,6 +20,7 @@ public class TileGraphNavigator : MonoBehaviour
     [SerializeField]
     TileGraphGenerator graphGenerator;
     List<TileNode> tileNodes;
+    List<PovNode> povNodes;
     int nodeIndex = 0;
 
     [SerializeField]
@@ -30,6 +31,7 @@ public class TileGraphNavigator : MonoBehaviour
         selectedAlgorithm = PathAlgorithm.AStar;
         selectedGraph = GraphMethod.Grid;
         tileNodes = graphGenerator.tileNodeList;
+        povNodes = graphGenerator.povNodeList;
         ComputeStartNode ();
         endNode = startNode.GetNeighbors()[0];
         startNode.costSoFar = 0.0f;
@@ -53,6 +55,41 @@ public class TileGraphNavigator : MonoBehaviour
             if((int)selectedGraph > 1)
             {
                 selectedGraph = 0;
+            }
+
+            // Reset
+            endNode = null;
+            pathList.Clear ();
+            openList.Clear ();
+            closedList.Clear ();
+            ComputeStartNode ();
+            npc.SetTarget (null);
+
+            // Adjust visibility
+            switch(selectedGraph)
+            {
+            case GraphMethod.Grid:
+                foreach(TileNode n in tileNodes)
+                {
+                    n.SetVisibility(true);
+                }
+                foreach(PovNode p in povNodes)
+                {
+                    p.SetVisibility(false);
+                }
+                break;
+            case GraphMethod.PointOfView:
+                foreach(TileNode n in tileNodes)
+                {
+                    n.SetVisibility(false);
+                }
+                foreach(PovNode p in povNodes)
+                {
+                    p.SetVisibility(true);
+                }
+                break;
+            default:
+                break;
             }
         }
         else if(Input.GetMouseButtonDown(0))

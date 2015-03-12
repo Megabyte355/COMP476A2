@@ -16,6 +16,7 @@ public class TileGraphGenerator : MonoBehaviour
     public int layoutLayer;
 
     public List<TileNode> tileNodeList = new List<TileNode>();
+    public List<PovNode> povNodeList = new List<PovNode>();
 //    public List<TileNode> pathList = new List<TileNode>();
 //    public List<TileNode> openList = new List<TileNode>();
 //    public List<TileNode> closedList = new List<TileNode>();
@@ -88,4 +89,8 @@ public class TileGraphGenerator : MonoBehaviour
         }
     }
 
+    public void AddPovNode(PovNode node)
+    {
+        povNodeList.Add(node);
+    }
 }
