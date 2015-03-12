@@ -14,8 +14,15 @@ public class TileGraphNavigator : MonoBehaviour
     public List<TileNode> openList = new List<TileNode>();
     public List<TileNode> closedList = new List<TileNode>();
 
+    public List<PovNode> povPathList = new List<PovNode>();
+    public List<PovNode> openPovList = new List<PovNode>();
+    public List<PovNode> closedPovList = new List<PovNode>();
+
     public TileNode startNode;
     public TileNode endNode;
+
+    public PovNode startPovNode;
+    public PovNode endPovNode;
 
     [SerializeField]
     TileGraphGenerator graphGenerator;
@@ -94,35 +101,39 @@ public class TileGraphNavigator : MonoBehaviour
         }
         else if(Input.GetMouseButtonDown(0))
         {
-            // If it's a cube, select new path
-
-            if(selectedGraph == GraphMethod.Grid)
+            // Select new path
+            Ray mouseClickRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if(Physics.Raycast (mouseClickRay, out hit))
             {
-                Ray mouseClickRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-                RaycastHit hit;
-                if(Physics.Raycast (mouseClickRay, out hit))
+
+                TileNode targetNode = hit.collider.GetComponent<TileNode>();
+                PovNode targetPovNode = hit.collider.GetComponent<PovNode>();
+                if(selectedGraph == GraphMethod.Grid && targetNode != null && targetNode != startNode && targetNode != endNode)
                 {
-                    TileNode targetNode = hit.collider.GetComponent<TileNode>();
-                    if(targetNode != null && targetNode != startNode && targetNode != endNode)
+                    endNode = targetNode;
+                    nodeIndex = 1;
+                    ComputeNewPath ();
+                    if(pathList.Count != 0)
                     {
-                        endNode = targetNode;
-                        nodeIndex = 1;
-                        ComputeNewPath ();
-                        if(pathList.Count != 0)
-                        {
-                            npc.SetTarget (pathList[nodeIndex].transform);
-                        }
+                        npc.SetTarget (pathList[nodeIndex].transform);
                     }
                 }
-            }
-            else if (selectedGraph == GraphMethod.PointOfView)
-            {
-                // TODO
+                else if(selectedGraph == GraphMethod.PointOfView && targetPovNode != null && targetPovNode != startPovNode && targetPovNode != endPovNode) 
+                {
+                    endPovNode = targetPovNode;
+                    nodeIndex = 1;
+                    ComputeNewPath ();
+                    if(povPathList.Count != 0)
+                    {
+                        npc.SetTarget (povPathList[nodeIndex].transform);
+                    }
+                }
             }
 
         }
 
-        if(pathList.Count != 0 && nodeIndex != pathList.Count - 1)
+        if(selectedGraph == GraphMethod.Grid && pathList.Count != 0 && nodeIndex != pathList.Count - 1)
         {
             // There are more nodes to follow
             if((npc.transform.position - pathList[nodeIndex].transform.position).magnitude < graphGenerator.overlapSphereRadius)
@@ -131,8 +142,14 @@ public class TileGraphNavigator : MonoBehaviour
                 npc.SetTarget (pathList[nodeIndex].transform);
             }
         }
-
-
+        else if(selectedGraph == GraphMethod.PointOfView && povPathList.Count != 0 && nodeIndex != povPathList.Count - 1)
+        {
+            if((npc.transform.position - povPathList[nodeIndex].transform.position).magnitude < graphGenerator.overlapSphereRadius)
+            {
+                nodeIndex++;
+                npc.SetTarget (povPathList[nodeIndex].transform);
+            }
+        }
 
         // Set color of nodes
         foreach(TileNode node in tileNodes)
@@ -176,26 +193,48 @@ public class TileGraphNavigator : MonoBehaviour
 
     void ComputeStartNode()
     {
-        TileNode potentialStart = tileNodes[0];
-        float minDistance = (potentialStart.transform.position - npc.transform.position).magnitude;
-        foreach(TileNode n in tileNodes)
+        if(selectedGraph == GraphMethod.Grid)
         {
-            float currentDistance = (n.transform.position - npc.transform.position).magnitude;
-            if(currentDistance < minDistance)
+            TileNode potentialStart = tileNodes[0];
+            float minDistance = (potentialStart.transform.position - npc.transform.position).magnitude;
+            foreach(TileNode n in tileNodes)
             {
-                potentialStart = n;
-                minDistance = currentDistance;
+                float currentDistance = (n.transform.position - npc.transform.position).magnitude;
+                if(currentDistance < minDistance)
+                {
+                    potentialStart = n;
+                    minDistance = currentDistance;
+                }
             }
+            startNode = potentialStart;
+        }
+        else if(selectedGraph == GraphMethod.PointOfView)
+        {
+            PovNode potentialStart = povNodes[0];
+            float minDistance = (potentialStart.transform.position - npc.transform.position).magnitude;
+            foreach(PovNode n in povNodes)
+            {
+                float currentDistance = (n.transform.position - npc.transform.position).magnitude;
+                if(currentDistance < minDistance)
+                {
+                    potentialStart = n;
+                    minDistance = currentDistance;
+                }
+            }
+            startPovNode = potentialStart;
         }
 
-        startNode = potentialStart;
     }
 
     void ComputeNewPath()
     {
         pathList.Clear ();
+        povPathList.Clear ();
+
         openList.Clear ();
+        openPovList.Clear ();
         closedList.Clear ();
+        closedPovList.Clear ();
         ComputeStartNode ();
 
         // Switch case for algorithms
@@ -217,15 +256,30 @@ public class TileGraphNavigator : MonoBehaviour
 
     void calculateAStar()
     {
-        openList.Add (startNode);
-        visitNodeAStar(startNode);
-
-        while(openList.Count > 0 && openList[0] != endNode)
+        if(selectedGraph == GraphMethod.Grid)
         {
-            visitNodeAStar (openList[0]);
+            openList.Add (startNode);
+            visitNodeAStar(startNode);
+            
+            while(openList.Count > 0 && openList[0] != endNode)
+            {
+                visitNodeAStar (openList[0]);
+            }
+            
+            ComposePathList();
         }
+        else if(selectedGraph == GraphMethod.PointOfView)
+        {
+            openPovList.Add (startPovNode);
+            visitNodeAStar(startPovNode);
 
-        ComposePathList();
+            while(openPovList.Count > 0 && openPovList[0] != endPovNode)
+            {
+                visitNodeAStar (openPovList[0]);
+            }
+
+            ComposePovPathList();
+        }
     }
 
     void calculateDijkstra()
@@ -256,8 +310,6 @@ public class TileGraphNavigator : MonoBehaviour
             List<TileNode> interClusterPath;
             if(startCluster.bestPathToCluster.TryGetValue(endCluster, out interClusterPath))
             {
-
-
                 // Save a backup
                 TileNode originalStart = startNode;
                 TileNode originalEnd = endNode;
@@ -385,6 +437,47 @@ public class TileGraphNavigator : MonoBehaviour
         openList.Sort((TileNode x, TileNode y) => { return x.costSoFar.CompareTo (y.costSoFar); });
     }
 
+    void visitNodeAStar(PovNode node)
+    {
+        closedPovList.Add (node);
+        openPovList.Remove (node);
+        
+        List<PovNode> neighbors = node.GetVisibleNeighbors();
+
+        foreach(PovNode currentNeighbor in neighbors)
+        {
+            if(!Physics.Linecast (node.transform.position, currentNeighbor.transform.position, 1 << graphGenerator.layoutLayer))
+            {
+                // Neighbor stats
+                float distance = (currentNeighbor.transform.position - node.transform.position).magnitude;
+                float costSoFar = node.costSoFar + distance;
+                float heuristicValue = (endPovNode.transform.position - currentNeighbor.transform.position).magnitude;
+                float totalEstimatedValue = costSoFar + heuristicValue;
+                
+                bool inClosedList = closedPovList.Contains(currentNeighbor);
+                bool inOpenList = openPovList.Contains(currentNeighbor);
+                bool betterHeuristicFound = totalEstimatedValue < currentNeighbor.totalEstimatedValue;
+                
+                if(inClosedList && betterHeuristicFound)
+                {
+                    UpdateNodeValues (currentNeighbor, node, costSoFar, heuristicValue, totalEstimatedValue);
+                    closedPovList.Remove (currentNeighbor);
+                    openPovList.Add (currentNeighbor);
+                }
+                else if (inOpenList && betterHeuristicFound)
+                {
+                    UpdateNodeValues (currentNeighbor, node, costSoFar, heuristicValue, totalEstimatedValue);
+                }
+                else if (!inClosedList && !inOpenList)
+                {
+                    UpdateNodeValues (currentNeighbor, node, costSoFar, heuristicValue, totalEstimatedValue);
+                    openPovList.Add (currentNeighbor);
+                }
+            }
+        }
+        openPovList.Sort();
+    }
+
     void ComposePathList()
     {
         pathList.Add (endNode);
@@ -399,6 +492,22 @@ public class TileGraphNavigator : MonoBehaviour
             pathList.Add (previous);
         }
         pathList.Reverse ();
+    }
+
+    void ComposePovPathList()
+    {
+        povPathList.Add (endPovNode);
+        while(povPathList.Count > 0 && povPathList[povPathList.Count - 1] != startPovNode)
+        {
+            PovNode previous = povPathList[povPathList.Count - 1].previous;
+            if(previous == null)
+            {
+                povPathList.Clear ();
+                return;
+            }
+            povPathList.Add (previous);
+        }
+        povPathList.Reverse ();
     }
 
     void Reset()
@@ -416,6 +525,14 @@ public class TileGraphNavigator : MonoBehaviour
     }
     
     private void UpdateNodeValues(TileNode n, TileNode prev, float cost, float heuristic, float total)
+    {
+        n.previous = prev;
+        n.costSoFar = cost;
+        n.heuristicValue = heuristic;
+        n.totalEstimatedValue = total;
+    }
+
+    private void UpdateNodeValues(PovNode n, PovNode prev, float cost, float heuristic, float total)
     {
         n.previous = prev;
         n.costSoFar = cost;

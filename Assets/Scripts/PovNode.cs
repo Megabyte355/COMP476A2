@@ -2,12 +2,20 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class PovNode : MonoBehaviour
+public class PovNode : MonoBehaviour, System.IComparable<PovNode>
 {
     [SerializeField]
     Cluster cluster;
     [SerializeField]
     List<PovNode> visibleNeighbors = new List<PovNode>();
+    public PovNode previous;
+
+    [SerializeField]
+    Color originalColor;
+
+    public float costSoFar;
+    public float heuristicValue;
+    public float totalEstimatedValue;
 
     void Awake ()
     {
@@ -49,5 +57,11 @@ public class PovNode : MonoBehaviour
     public void SetCluster(Cluster c)
     {
         cluster = c;
+    }
+
+    public int CompareTo(PovNode node)
+    {
+        int totalEstimateComparison = this.totalEstimatedValue.CompareTo(node.totalEstimatedValue);
+        return (totalEstimateComparison != 0) ? totalEstimateComparison : this.heuristicValue.CompareTo(node.heuristicValue);
     }
 }
