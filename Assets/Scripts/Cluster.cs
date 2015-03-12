@@ -28,7 +28,7 @@ public class Cluster : MonoBehaviour
             {
                 if(node != potentialNeighbor && !Physics.Linecast(node.transform.position, potentialNeighbor.transform.position, 1 << layoutLayer))
                 {
-                    node.AddVisibleNeighbor(potentialNeighbor);
+                    node.AddVisibleNeighborInCluster(potentialNeighbor);
                 }
             }
         }

@@ -7,7 +7,9 @@ public class PovNode : MonoBehaviour, System.IComparable<PovNode>
     [SerializeField]
     Cluster cluster;
     [SerializeField]
-    List<PovNode> visibleNeighbors = new List<PovNode>();
+    List<PovNode> visibleNeighborsInCluster = new List<PovNode>();
+    [SerializeField]
+    List<PovNode> neighbors = new List<PovNode>();
     public PovNode previous;
 
     [SerializeField]
@@ -39,14 +41,24 @@ public class PovNode : MonoBehaviour, System.IComparable<PovNode>
         }
     }
 
-    public void AddVisibleNeighbor(PovNode node)
+    public void AddVisibleNeighborInCluster(PovNode node)
     {
-        visibleNeighbors.Add (node);
+        visibleNeighborsInCluster.Add (node);
     }
 
-    public List<PovNode> GetVisibleNeighbors()
+    public List<PovNode> GetVisibleNeighborsInCluster()
     {
-        return visibleNeighbors;
+        return visibleNeighborsInCluster;
+    }
+
+    public void AddNeighbor(PovNode node)
+    {
+        neighbors.Add (node);
+    }
+    
+    public List<PovNode> GetNeighbors()
+    {
+        return neighbors;
     }
 
     public void SetVisibility(bool visibility)

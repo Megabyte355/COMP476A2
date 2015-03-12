@@ -348,6 +348,12 @@ public class TileGraphNavigator : MonoBehaviour
 
     void calculateCluster()
     {
+        if(selectedGraph == GraphMethod.PointOfView)
+        {
+            // Not supported
+            return;
+        }
+
         Cluster startCluster = startNode.GetCluster ();
         Cluster endCluster = endNode.GetCluster ();
 
@@ -493,7 +499,7 @@ public class TileGraphNavigator : MonoBehaviour
         closedPovList.Add (node);
         openPovList.Remove (node);
         
-        List<PovNode> neighbors = node.GetVisibleNeighbors();
+        List<PovNode> neighbors = node.GetNeighbors();
 
         foreach(PovNode currentNeighbor in neighbors)
         {
@@ -535,7 +541,7 @@ public class TileGraphNavigator : MonoBehaviour
         closedPovList.Add (node);
         openPovList.Remove (node);
         
-        List<PovNode> neighbors = node.GetVisibleNeighbors();
+        List<PovNode> neighbors = node.GetNeighbors();
         
         foreach(PovNode currentNeighbor in neighbors)
         {

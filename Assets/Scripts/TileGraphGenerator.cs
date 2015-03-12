@@ -28,6 +28,11 @@ public class TileGraphGenerator : MonoBehaviour
         AssignTileNodeNeighbors();
     }
 
+    void Start ()
+    {
+        AssignPovNodeNeighbors();
+    }
+
     void GenerateTiles()
     {
         for(int col = 0; col < tileDensity; col++)
@@ -74,6 +79,20 @@ public class TileGraphGenerator : MonoBehaviour
             if(topRight != null) { currentNode.AddNeighbor(topRight); }
             if(bottomLeft != null) { currentNode.AddNeighbor(bottomLeft); }
             if(bottomRight != null) { currentNode.AddNeighbor(bottomRight); }
+        }
+    }
+
+    void AssignPovNodeNeighbors()
+    {
+        foreach(PovNode currentNode in povNodeList)
+        {
+            foreach(PovNode potentialNeighbor in povNodeList)
+            {
+                if(currentNode != potentialNeighbor && !Physics.Linecast(currentNode.transform.position, potentialNeighbor.transform.position, 1 << layoutLayer))
+                {
+                    currentNode.AddNeighbor(potentialNeighbor);
+                }
+            }
         }
     }
 
