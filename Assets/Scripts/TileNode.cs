@@ -15,6 +15,15 @@ public class TileNode : MonoBehaviour, System.IComparable<TileNode>
     public float heuristicValue;
     public float totalEstimatedValue;
 
+    void Start()
+    {
+        RaycastHit hit;
+        if(Physics.Raycast(transform.position, -Vector3.up, out hit))
+        {
+            Debug.Log(hit.collider.transform.gameObject.name);
+        }
+    }
+
     public void AddNeighbor(TileNode n)
     {
         if(!neighbors.Contains (n))

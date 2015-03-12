@@ -28,7 +28,7 @@ public class TileGraphGenerator : MonoBehaviour
     void Awake ()
     {
         gridNodes = GameObject.FindGameObjectWithTag("GridNodes");
-        gridNodes = GameObject.FindGameObjectWithTag("PovNodes");
+        povNodes = GameObject.FindGameObjectWithTag("PovNodes");
         tileSize = new Vector3(levelSize.x / tileDensity, 0, levelSize.z / tileDensity);
         overlapSphereRadius = tileSize.magnitude / 2;
         GenerateTiles();
